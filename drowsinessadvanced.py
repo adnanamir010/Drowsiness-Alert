@@ -11,9 +11,15 @@ import cv2
 import winsound
 import thingspeak
 
-channel_id = 1922849
-write_key = 'NRKTXC7IF1UQVDMH'
+#defining thingspeak parameters for publishing data.
+#We will be writing to the channel so we're going to need the write api key
+channel_id = 1234569 #channel id as int
+write_key = 'abcd' #write api key from channel
+
+#defining channel object which will be intrfacing with thingspeak platform
 channel = thingspeak.Channel(id=channel_id, api_key=write_key)
+
+#Warning counter to make sure alert does not go out needlessly
 WarnCount=0
 
 
@@ -109,13 +115,17 @@ while True:
 					t = Thread(target=sound_alarm)
 					t.deamon = True
 					t.start()
+					#Alarm has been sounded, so add 1 to warning counter
 					WarnCount+=1
 					print(WarnCount)
 				# draw an alarm on the frame
 				cv2.putText(frame, "DROWSINESS ALERT!", (10, 30),
 					cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+			#if the alarm has been sounded more than 15 times
+			#send the alert
 			if WarnCount >= 15:
 				alert=channel.update({'field1': 1})
+				#Reset the warning counter
 				WarnCount=0
 		# otherwise, the eye aspect ratio is not below the blink
 		# threshold, so reset the counter and alarm
